@@ -30,7 +30,7 @@ jobs:
           nasm
 
     - name: Download dependencies (mac)
-      if: ${{ matrix.os == 'mac' }}
+      if: ${{ matrix.os == 'macos' }}
       run: |
         brew install binaryen nasm
 
