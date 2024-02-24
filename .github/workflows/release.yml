@@ -51,13 +51,14 @@ jobs:
     - uses: Swatinem/rust-cache@v2
 
     - name: Download dioxus
-      run: |
-        cargo install --git https://github.com/DioxusLabs/dioxus dioxus-cli
+      uses: baptiste0928/cargo-install@v3
+      with:
+        crate: dioxus-cli
 
     - name: Fix paths (windows)
       if: ${{ matrix.os == 'windows' }}
       run: |
-        sed -i 's;/;\\\\;g' desktop/Dioxus.toml # Filesystem paths...
+        sed -i 's;/;\\\\;g' Dioxus.toml # Filesystem paths...
 
     - name: Build artifacts (cross-compile)
       if: ${{ matrix.triple }}
