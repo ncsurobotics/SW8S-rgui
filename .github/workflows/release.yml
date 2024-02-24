@@ -99,7 +99,6 @@ jobs:
 
     if: startsWith(github.ref, 'refs/tags/')
     needs: [
-      cli-builds,
       gui-builds,
       release_info
     ]
