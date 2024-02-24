@@ -1,0 +1,136 @@
+name: release
+
+on: push
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  gui-builds:
+    strategy:
+      matrix:
+        os: [ubuntu, windows, macos]
+        arch: [x86_64]
+        include:
+          - os: macos
+            arch: arm
+            triple: aarch64-apple-darwin
+    runs-on: ${{ format('{0}-latest', matrix.os) }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: awalsh128/cache-apt-pkgs-action@v1
+      if: ${{ matrix.os == 'ubuntu' }}
+      with:
+        packages: binaryen \
+          libwebkit2gtk-4.1-dev \
+          libgtk-3-dev \
+          libayatana-appindicator3-dev
+
+    - name: Download dependencies (mac)
+      if: ${{ matrix.os == 'mac' }}
+      run: |
+        brew install binaryen
+
+    - name: Download dependencies (windows)
+      if: ${{ matrix.os == 'windows' }}
+      run: |
+        choco install sed
+        iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+        scoop install main/binaryen
+
+    - uses: dtolnay/rust-toolchain@stable
+      if: ${{ matrix.triple == null }}
+    - uses: dtolnay/rust-toolchain@stable
+      if: ${{ matrix.triple }}
+      with:
+        target: ${{ matrix.triple }}
+
+    - uses: Swatinem/rust-cache@v2
+
+    - name: Download dioxus
+      run: |
+        cargo install --git https://github.com/DioxusLabs/dioxus dioxus-cli
+
+    - name: Fix paths (windows)
+      if: ${{ matrix.os == 'windows' }}
+      run: |
+        sed -i 's;/;\\\\;g' desktop/Dioxus.toml # Filesystem paths...
+
+    - name: Build artifacts (cross-compile)
+      if: ${{ matrix.triple }}
+      run: |
+        dx bundle --release --target '${{ matrix.triple }}'
+        mv 'desktop/dist/bundle/macos/sw8s_rgui.app' 'desktop/dist/bundle/macos/sw8s_rgui_${{ matrix.triple }}.app' || true
+
+    - name: Build artifacts
+      if: ${{ matrix.triple == null }}
+      run: |
+        dx bundle --release
+
+    - uses: actions/upload-artifact@v4
+      with: 
+        name: ${{ matrix.arch }}-${{ matrix.os }}-gui
+        path: |
+          desktop/dist/bundle/deb/*.deb
+          desktop/dist/bundle/appimage/*.AppImage
+          desktop/dist/bundle/macos/*.app
+          desktop/dist/bundle/dmg/*.dmg
+          desktop/dist/bundle/msi/*.msi
+          desktop/dist/bundle/nsis/*.exe
+        retention-days: 1
+
+  release_info:
+    runs-on: ubuntu-latest
+
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/upload-artifact@v4
+      with: 
+        name: RELEASE.txt
+        path: RELEASE.txt
+        retention-days: 1
+
+  bundle:
+    runs-on: ubuntu-latest
+
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [
+      cli-builds,
+      gui-builds,
+      release_info
+    ]
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        pattern: '!RELEASE.txt'
+
+    - name: Unpack directories
+      run: |
+        find -mindepth 2 -maxdepth 2 -type d -exec sh -c 'mv "$1"/* .' shell {} \;
+        find -type d -iname '*.app' -exec sh -c 'zip -r "$1".zip "$1"' shell {} \;
+        find -mindepth 1 -maxdepth 1 -type d -exec sh -c 'rm -rf "$1"' shell {} \;
+
+    - name: Calculate checksums
+      run: |
+        sha512sum * > sums.txt
+
+    - name: Move artifacts to subfolder
+      run: |
+        shopt -s extglob
+        mkdir artifacts
+        mv !(artifacts) artifacts
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: RELEASE.txt
+
+    - uses: softprops/action-gh-release@v1
+      with:
+        files: artifacts/**
+        generate_release_notes: true
+        body_path: RELEASE.txt

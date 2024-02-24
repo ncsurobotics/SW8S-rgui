@@ -32,7 +32,7 @@ watch_path = ["src", "public"]
 
 # CSS style file
 
-style = ["tailwind.css"]
+#style = ["tailwind.css"]
 
 # Javascript code file
 script = []
@@ -42,3 +42,10 @@ script = []
 # Javascript code file
 # serve: [dev-server] only
 script = []
+
+[bundle]
+name = "SW8S Client"
+identifier = "io.github.ncsurobitics.SW8S-rgui"
+icon = ["icons/favicon-0.png", "icons/favicon-1.png", "icons/favicon-2.png", "icons/favicon-3.png", "icons/favicon-4.png", "icons/favicon-5.png"]
+copyright = "Copyright (c) Bennett Petzold 2023. GPLv2 or later."
+short_description = "A GUI Tool for interfacing with Jetson-deployed code"
