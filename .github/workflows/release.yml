@@ -50,10 +50,11 @@ jobs:
 
     - uses: Swatinem/rust-cache@v2
 
+    - uses: cargo-bins/cargo-binstall@main
+
     - name: Download dioxus
-      uses: baptiste0928/cargo-install@v3
-      with:
-        crate: dioxus-cli
+      run:
+        cargo bininstall --no-confirm dioxus-cli
 
     - name: Fix paths (windows)
       if: ${{ matrix.os == 'windows' }}
