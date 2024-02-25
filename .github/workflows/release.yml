@@ -54,7 +54,7 @@ jobs:
 
     - name: Download dioxus
       run:
-        cargo bininstall --no-confirm dioxus-cli
+        cargo binstall --no-confirm dioxus-cli
 
     - name: Fix paths (windows)
       if: ${{ matrix.os == 'windows' }}
