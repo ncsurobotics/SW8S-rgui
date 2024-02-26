@@ -66,7 +66,7 @@ jobs:
       if: ${{ matrix.triple }}
       run: |
         dx bundle --release --target '${{ matrix.triple }}'
-        mv 'desktop/dist/bundle/macos/sw8s_rgui.app' 'desktop/dist/bundle/macos/sw8s_rgui_${{ matrix.triple }}.app' || true
+        mv 'dist/bundle/macos/sw8s_rgui.app' 'dist/bundle/macos/sw8s_rgui_${{ matrix.triple }}.app' || true
 
     - name: Build artifacts
       if: ${{ matrix.triple == null }}
@@ -77,12 +77,12 @@ jobs:
       with: 
         name: ${{ matrix.arch }}-${{ matrix.os }}-gui
         path: |
-          desktop/dist/bundle/deb/*.deb
-          desktop/dist/bundle/appimage/*.AppImage
-          desktop/dist/bundle/macos/*.app
-          desktop/dist/bundle/dmg/*.dmg
-          desktop/dist/bundle/msi/*.msi
-          desktop/dist/bundle/nsis/*.exe
+          dist/bundle/deb/*.deb
+          dist/bundle/appimage/*.AppImage
+          dist/bundle/macos/*.app
+          dist/bundle/dmg/*.dmg
+          dist/bundle/msi/*.msi
+          dist/bundle/nsis/*.exe
         retention-days: 1
 
   release_info:
