@@ -41,6 +41,14 @@ jobs:
         iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
         scoop install main/binaryen main/nasm
 
+        # https://github.com/xiph/rav1e : Installing nasm
+        $NASM_VERSION="2.15.05" # or newer
+        $LINK="https://www.nasm.us/pub/nasm/releasebuilds/$NASM_VERSION/win64"
+        curl --ssl-no-revoke -LO "$LINK/nasm-$NASM_VERSION-win64.zip"
+        7z e -y "nasm-$NASM_VERSION-win64.zip" -o "C:\nasm"
+        # set path for the current sessions
+        set PATH="%PATH%;C:\nasm"
+
     - uses: dtolnay/rust-toolchain@stable
       if: ${{ matrix.triple == null }}
     - uses: dtolnay/rust-toolchain@stable
@@ -54,7 +62,7 @@ jobs:
 
     - name: Download dioxus
       run:
-        cargo binstall --no-confirm dioxus-cli
+        cargo binstall --no-confirm dioxus-cli@0.5.0-alpha.0
 
     - name: Fix paths (windows)
       if: ${{ matrix.os == 'windows' }}
