@@ -8,8 +8,8 @@ edition = "2021"
 
 [dependencies]
 
-dioxus-desktop = { git = "https://github.com/DioxusLabs/dioxus" }
-dioxus = { git = "https://github.com/DioxusLabs/dioxus", features = ['desktop'] }
+dioxus-desktop = { version = "0.5.0-alpha.0" }
+dioxus = { version = "0.5.0-alpha.0", features = ['desktop'] }
 
 # Debug
 log = "0.4.19"
