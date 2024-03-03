@@ -20,3 +20,6 @@ Run the following command in the root of the project to start the Dioxus dev ser
 dx serve --hot-reload --platform desktop
 ```
 
+# Building AppImages
+On some platforms the environment currently needs to be set with `NO_STRIP=true` to build appimages properly.
+Fix is from https://github.com/tauri-apps/tauri/issues/8929.
