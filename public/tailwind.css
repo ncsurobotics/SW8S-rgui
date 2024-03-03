@@ -54,6 +54,7 @@ html,
   /* 6 */
   -webkit-tap-highlight-color: transparent;
   /* 7 */
+  background-color: black;
 }
 
 /*
@@ -66,6 +67,7 @@ body {
   /* 1 */
   line-height: inherit;
   /* 2 */
+  background-color: black;
 }
 
 /*
@@ -542,4 +544,16 @@ video {
   --tw-backdrop-opacity:  ;
   --tw-backdrop-saturate:  ;
   --tw-backdrop-sepia:  ;
+}
+
+.flex {
+  display: flex;
+}
+
+.table-cell {
+  display: table-cell;
+}
+
+.table-row {
+  display: table-row;
 }
