@@ -2,6 +2,7 @@
 
 use const_format::concatcp;
 use dioxus::prelude::*;
+use dioxus_desktop::tao::event::Event;
 use dioxus_desktop::{window, WindowEvent};
 use log::{info, LevelFilter};
 
@@ -32,7 +33,7 @@ fn app() -> Element {
 
     // Redraw element sizes when window is resized
     window().create_wry_event_handler(move |event, _| {
-        if let tao::event::Event::WindowEvent {
+        if let Event::WindowEvent {
             event: win_event, ..
         } = event
         {
