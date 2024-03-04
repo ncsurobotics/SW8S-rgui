@@ -18,6 +18,7 @@ mod dir_management {
         path::{Path, PathBuf},
     };
 
+    use chrono::{Local, NaiveDateTime};
     use futures::{
         stream::{self, iter},
         StreamExt,
@@ -59,6 +60,17 @@ mod dir_management {
             .await;
 
         info!("Transferred data dir from {:?} to {:?}", prev_dir, cur_dir);
+    }
+
+    pub async fn new_inner_dir() -> PathBuf {
+        info!("Spawning new directory for mission data");
+
+        let cur_dir = DATA_DIR.lock().await;
+        let mut inner_dirs = INNER_DIRECTORIES.lock().await;
+
+        let new_dir = cur_dir.join(Local::now().to_string());
+        inner_dirs.push(new_dir.clone());
+        new_dir
     }
 }
 
