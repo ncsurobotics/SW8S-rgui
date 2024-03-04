@@ -1,13 +1,66 @@
 use const_format::concatcp;
 use dioxus::prelude::*;
 use log::info;
+use rfd::{AsyncFileDialog, FileDialog};
 
 use crate::{util::MainWinState, VIDEO_PADDING};
+use dir_management::set_new_data_dir;
 
 const VIDEO_BASE: &str = "http://localhost:8888/";
 const VIDEO_FRONT: &str = concatcp!(VIDEO_BASE, "mystream");
 const VIDEO_BOTTOM: &str = concatcp!(VIDEO_BASE, "mystream");
 const SMALL_BUTTONS_MARGIN: i64 = 10;
+
+mod dir_management {
+    use std::{
+        env::temp_dir,
+        iter::{repeat, Cycle},
+        path::{Path, PathBuf},
+    };
+
+    use futures::{
+        stream::{self, iter},
+        StreamExt,
+    };
+    use lazy_static::lazy_static;
+    use log::info;
+    use tokio::{
+        fs::{rename, File},
+        sync::{Mutex, RwLock},
+    };
+
+    // TODO: make the default dir dictated by a config setting
+    lazy_static! {
+        static ref DATA_DIR: Mutex<PathBuf> = Mutex::new(temp_dir());
+    }
+
+    lazy_static! {
+        static ref INNER_DIRECTORIES: Mutex<Vec<PathBuf>> = Mutex::default();
+    }
+
+    pub async fn set_new_data_dir(new_dir: PathBuf) {
+        info!("Changing data dirs...");
+
+        let mut cur_dir = DATA_DIR.lock().await;
+        let mut inner_dirs = INNER_DIRECTORIES.lock().await;
+
+        let prev_dir = cur_dir.to_path_buf();
+        *cur_dir = new_dir.clone();
+
+        // Move all inner directories to the new parent
+        // Will panic if crossing mounts
+        *inner_dirs = stream::iter(inner_dirs.clone().into_iter().zip(repeat(new_dir.clone())))
+            .then(|(inner_dir, rename_dir)| async move {
+                let new_path = rename_dir.join(inner_dir.file_name().unwrap());
+                rename(inner_dir, new_path.clone()).await.unwrap();
+                new_path
+            })
+            .collect()
+            .await;
+
+        info!("Transferred data dir from {:?} to {:?}", prev_dir, cur_dir);
+    }
+}
 
 pub fn live_mission(
     video_width: i64,
@@ -137,7 +190,12 @@ pub fn live_mission(
                     margin_left : SMALL_BUTTONS_MARGIN.to_string() + "px",
                     margin_right : SMALL_BUTTONS_MARGIN.to_string() + "px",
                     onclick : move |_| {
-                        info!("Selected Set Data Dir");
+                        async move {
+                            info!("Selected Set Data Dir");
+                            if let Some(data_dir) = AsyncFileDialog::new().pick_folder().await {
+                                set_new_data_dir(data_dir.into()).await;
+                            }
+                        }
                     },
                     b {
                         "Set Data Dir"

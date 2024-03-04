@@ -28,3 +28,5 @@ global-hotkey = "0.4.2"
 # Debug
 dioxus-logger = { version = "0.4.1", features = ['timestamps'] }
 lazy_static = "1.4.0"
+rfd = "0.14.0"
+futures = "0.3.30"
