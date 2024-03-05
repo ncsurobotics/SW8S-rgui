@@ -6,9 +6,10 @@ use rfd::{AsyncFileDialog, FileDialog};
 use crate::{util::MainWinState, VIDEO_PADDING};
 use dir_management::set_new_data_dir;
 
-const VIDEO_BASE: &str = "http://localhost:8888/";
-const VIDEO_FRONT: &str = concatcp!(VIDEO_BASE, "mystream");
-const VIDEO_BOTTOM: &str = concatcp!(VIDEO_BASE, "mystream");
+const JETSON_IP: &str = "192.168.2.5";
+const VIDEO_BASE: &str = concatcp!("http://", JETSON_IP, ":8888/");
+const VIDEO_FRONT: &str = concatcp!(VIDEO_BASE, "front");
+const VIDEO_BOTTOM: &str = concatcp!(VIDEO_BASE, "bottom");
 const SMALL_BUTTONS_MARGIN: i64 = 10;
 
 mod dir_management {
