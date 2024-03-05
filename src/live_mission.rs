@@ -1,7 +1,7 @@
 use const_format::concatcp;
 use dioxus::prelude::*;
 use log::info;
-use rfd::{AsyncFileDialog, FileDialog};
+use rfd::AsyncFileDialog;
 
 use crate::{util::MainWinState, VIDEO_PADDING};
 use dir_management::set_new_data_dir;
@@ -13,23 +13,16 @@ const VIDEO_BOTTOM: &str = concatcp!(VIDEO_BASE, "bottom");
 const SMALL_BUTTONS_MARGIN: i64 = 10;
 
 mod dir_management {
-    use std::{
-        env::temp_dir,
-        iter::{repeat, Cycle},
-        path::{Path, PathBuf},
-    };
+    use std::{env::temp_dir, iter::repeat, path::PathBuf};
 
-    use chrono::{Local, NaiveDateTime};
+    use chrono::Local;
     use futures::{
-        stream::{self, iter},
+        stream::{self},
         StreamExt,
     };
     use lazy_static::lazy_static;
     use log::info;
-    use tokio::{
-        fs::{rename, File},
-        sync::{Mutex, RwLock},
-    };
+    use tokio::{fs::rename, sync::Mutex};
 
     // TODO: make the default dir dictated by a config setting
     lazy_static! {

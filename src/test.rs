@@ -19,7 +19,7 @@ pub fn dry_test(cx: TestProps) -> Element {
     rsx! { { wrap_background( dry_test_inner(main_win_state) ) } }
 }
 
-pub fn dry_test_inner(main_win_state: Signal<MainWinState>) -> Element {
+pub fn dry_test_inner(_main_win_state: Signal<MainWinState>) -> Element {
     rsx! {
         "TODO"
     }
