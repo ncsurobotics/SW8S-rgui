@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 
+mod config;
 mod live_mission;
 mod planning_mission;
 mod test;

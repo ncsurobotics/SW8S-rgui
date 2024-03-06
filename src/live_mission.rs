@@ -13,8 +13,9 @@ const VIDEO_BOTTOM: &str = concatcp!(VIDEO_BASE, "bottom");
 const SMALL_BUTTONS_MARGIN: i64 = 10;
 
 mod dir_management {
-    use std::{env::temp_dir, iter::repeat, path::PathBuf};
+    use std::{iter::repeat, path::PathBuf};
 
+    use async_lazy::Lazy;
     use chrono::Local;
     use futures::{
         stream::{self},
@@ -24,10 +25,11 @@ mod dir_management {
     use log::info;
     use tokio::{fs::rename, sync::Mutex};
 
+    use crate::config::get_config;
+
     // TODO: make the default dir dictated by a config setting
-    lazy_static! {
-        static ref DATA_DIR: Mutex<PathBuf> = Mutex::new(temp_dir());
-    }
+    static DATA_DIR: Lazy<Mutex<PathBuf>> =
+        Lazy::const_new(|| Box::pin(async { Mutex::new(get_config().await.data_dir) }));
 
     lazy_static! {
         static ref INNER_DIRECTORIES: Mutex<Vec<PathBuf>> = Mutex::default();
@@ -36,7 +38,7 @@ mod dir_management {
     pub async fn set_new_data_dir(new_dir: PathBuf) {
         info!("Changing data dirs...");
 
-        let mut cur_dir = DATA_DIR.lock().await;
+        let mut cur_dir = DATA_DIR.force().await.lock().await;
         let mut inner_dirs = INNER_DIRECTORIES.lock().await;
 
         let prev_dir = cur_dir.to_path_buf();
@@ -59,7 +61,7 @@ mod dir_management {
     pub async fn new_inner_dir() -> PathBuf {
         info!("Spawning new directory for mission data");
 
-        let cur_dir = DATA_DIR.lock().await;
+        let cur_dir = DATA_DIR.force().await.lock().await;
         let mut inner_dirs = INNER_DIRECTORIES.lock().await;
 
         let new_dir = cur_dir.join(Local::now().to_string());
