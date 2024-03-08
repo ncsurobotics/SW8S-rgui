@@ -57,8 +57,9 @@ jobs:
 
     - name: Download dioxus
       run:
-        cargo binstall --no-confirm dioxus-cli@0.5.0-alpha.0
+        #cargo binstall --no-confirm dioxus-cli@0.5.0-alpha.0
         #cargo install dioxus-cli@0.5.0-alpha.0
+        cargo install --git https://github.com/DioxusLabs/dioxus dioxus-cli
 
     - name: Fix paths (windows)
       if: ${{ matrix.os == 'windows' }}
@@ -74,7 +75,6 @@ jobs:
     - name: Build artifacts
       if: ${{ matrix.triple == null }}
       run: |
-        rm -rf dist
         dx bundle --release || tree dist/bundle
 
     - uses: actions/upload-artifact@v4
