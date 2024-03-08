@@ -74,6 +74,7 @@ jobs:
     - name: Build artifacts
       if: ${{ matrix.triple == null }}
       run: |
+        rm -rf dist
         dx bundle --release || tree dist/bundle
 
     - uses: actions/upload-artifact@v4
