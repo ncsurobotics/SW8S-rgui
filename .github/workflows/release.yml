@@ -57,9 +57,7 @@ jobs:
 
     - name: Download dioxus
       run:
-        #cargo binstall --no-confirm dioxus-cli@0.5.0-alpha.0
-        #cargo install dioxus-cli@0.5.0-alpha.0
-        cargo install --git https://github.com/DioxusLabs/dioxus dioxus-cli
+        cargo binstall --no-confirm dioxus-cli@0.5.0-alpha.0
 
     - name: Fix paths (windows)
       if: ${{ matrix.os == 'windows' }}
@@ -73,9 +71,9 @@ jobs:
         mv 'dist/bundle/macos/sw8s_rgui.app' 'dist/bundle/macos/sw8s_rgui_${{ matrix.triple }}.app' || true
 
     - name: Build artifacts
-      if: ${{ matrix.triple == null }}
+      if: ${{ matrix.triple == null && matrix.os != 'ubuntu' }} # Ubuntu builds disabled until it cooperates again
       run: |
-        dx bundle --release || tree dist/bundle
+        dx bundle --release
 
     - uses: actions/upload-artifact@v4
       with: 
